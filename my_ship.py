@@ -1,5 +1,6 @@
 import pygame
 
+
 class Ship():
     '''Класс для управления кораблем'''
 
@@ -17,4 +18,3 @@ class Ship():
     def blitme(self):
         '''Рисуем корабль в текущей позиции'''
         self.screen.blit(self.image, self.rect)
-
