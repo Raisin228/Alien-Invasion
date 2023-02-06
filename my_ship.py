@@ -9,26 +9,14 @@ class Ship():
         self.screen = ai_game.screen
         self.screen_rect = ai_game.screen.get_rect()
         # Загружает изображение корабля и получает прямоугольник
-        self.image = pygame.image.load('images/dreadnought.png')
+        self.image = pygame.image.load('images/1.png')
         self.rect = self.image.get_rect()
         # Каждый новый корабль появляется у нижнего края экрана
         self.rect.midbottom = self.screen_rect.midbottom
 
-        # атрибут для проверки движения корабля влево\право
-        self.moving_right, self.moving_left = False, False
-        self.moving_up, self.moving_down = False, False
-
-    def update(self):
-        '''метод для движения вправо'''
-        if self.moving_right:
-            self.rect.x += 3
-        elif self.moving_left:
-            self.rect.x -= 3
-        elif self.moving_up:
-            self.rect.y -= 3
-        elif self.moving_down:
-            self.rect.y += 3
-
+        # # атрибут для проверки движения корабля влево\право
+        # self.moving_right, self.moving_left = False, False
+        # self.moving_up, self.moving_down = False, False
 
     def blitme(self):
         '''Рисуем корабль в текущей позиции'''
