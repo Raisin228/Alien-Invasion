@@ -33,15 +33,25 @@ class AlienInvansion():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            elif event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT):
+                self.ship.fl_move_right = False
+                self.ship.fl_move_left = False
+
 
         key = pygame.key.get_pressed()
         if key[pygame.K_q]:
             sys.exit()
-        # Обработка движения корабля влево и вправо
+        # Обработка движения корабля влево|вправо|верх|низ
         if (key[pygame.K_RIGHT] or key[pygame.K_d]) and self.ship.rect.right <= self.ship.screen_rect.right:
             self.ship.rect.x += 3
+            self.ship.frame += 0.2
+            self.ship.fl_move_right = True
+            self.ship.d_fl = 2
         if (key[pygame.K_LEFT] or key[pygame.K_a]) and self.ship.rect.left > self.ship.screen_rect.left:
             self.ship.rect.x -= 3
+            self.ship.frame += 0.2
+            self.ship.fl_move_left = True
+            self.ship.d_fl = 0
         if (key[pygame.K_UP] or key[pygame.K_w]) and self.ship.rect.y > self.ship.screen_rect.y:
             self.ship.rect.y -= 3
         if (key[pygame.K_DOWN] or key[pygame.K_s]) and self.ship.rect.bottom < self.ship.screen_rect.bottom:

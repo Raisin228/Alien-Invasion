@@ -9,15 +9,39 @@ class Ship():
         self.screen = ai_game.screen
         self.screen_rect = ai_game.screen.get_rect()
         # Загружает изображение корабля и получает прямоугольник
-        self.image = pygame.image.load('images/1.png')
+        self.image = pygame.image.load('images/drednought/right/0.png')
         self.rect = self.image.get_rect()
         # Каждый новый корабль появляется у нижнего края экрана
         self.rect.midbottom = self.screen_rect.midbottom
 
-        # # атрибут для проверки движения корабля влево\право
-        # self.moving_right, self.moving_left = False, False
-        # self.moving_up, self.moving_down = False, False
+        # флаги для анимации движения корабля
+        self.fl_move_right, self.fl_move_left = False, False
+        self.animation_set_right = [pygame.image.load(f'images/drednought/right/{i}.png') for i in range(0, 3)]
+        self.animation_set_left = [pygame.image.load(f'images/drednought/left/{i}.png') for i in range(0, 3)]
+        self.frame = 0
+        self.d_fl = 1
 
     def blitme(self):
         '''Рисуем корабль в текущей позиции'''
+        if self.frame > 2:
+            self.frame = 2
+
+        if self.fl_move_right:
+            self.image = self.animation_set_right[int(self.frame)]
+        elif self.fl_move_left:
+            self.image = self.animation_set_left[int(self.frame)]
+        else:
+            if self.frame > 0:
+                self.frame -= 0.2
+                if self.frame < 0:
+                    self.frame = 0
+                if self.d_fl == 2:
+                    self.image = self.animation_set_right[int(self.frame)]
+                else:
+                    self.image = self.animation_set_left[int(self.frame)]
+                if self.frame == 0:
+                    self.d_fl = 1
+
+            else:
+                self.image = pygame.image.load(f'images/drednought/right/{int(self.frame)}.png')
         self.screen.blit(self.image, self.rect)
