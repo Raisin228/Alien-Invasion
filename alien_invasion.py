@@ -31,33 +31,33 @@ class AlienInvansion():
     def _check_events(self):
         '''Метод для обработки нажатия клавиш и событий мыши'''
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
                 sys.exit()
             elif event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or
                                                  event.key == pygame.K_UP or event.key == pygame.K_DOWN):
                 self.ship.fl_move_right, self.ship.fl_move_left = False, False
                 self.ship.fl_move_up, self.ship.fl_move_down = False, False
 
+        self._ship_move()
 
+    def _ship_move(self):
+        '''Обработка движения корабля влево|вправо|верх|низ'''
         key = pygame.key.get_pressed()
-        if key[pygame.K_q]:
-            sys.exit()
-        # Обработка движения корабля влево|вправо|верх|низ
-        if (key[pygame.K_RIGHT] or key[pygame.K_d]) and self.ship.rect.right <= self.ship.screen_rect.right:
+        if key[pygame.K_RIGHT] and self.ship.rect.right <= self.ship.screen_rect.right:
             self.ship.rect.x += 3
             self.ship.frame += 0.2
             self.ship.fl_move_right = True
             self.ship.d_fl = 2
-        if (key[pygame.K_LEFT] or key[pygame.K_a]) and self.ship.rect.left > self.ship.screen_rect.left:
+        if key[pygame.K_LEFT] and self.ship.rect.left > self.ship.screen_rect.left:
             self.ship.rect.x -= 3
             self.ship.frame += 0.2
             self.ship.fl_move_left = True
             self.ship.d_fl = 0
-        if (key[pygame.K_UP] or key[pygame.K_w]) and self.ship.rect.y > self.ship.screen_rect.y:
+        if key[pygame.K_UP] and self.ship.rect.y > self.ship.screen_rect.y:
             self.ship.rect.y -= 3
             self.ship.frame_up += 0.1
             self.ship.fl_move_up = True
-        if (key[pygame.K_DOWN] or key[pygame.K_s]) and self.ship.rect.bottom < self.ship.screen_rect.bottom:
+        if key[pygame.K_DOWN] and self.ship.rect.bottom < self.ship.screen_rect.bottom:
             self.ship.rect.y += 3
             self.ship.fl_move_down = True
 

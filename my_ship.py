@@ -23,7 +23,7 @@ class Ship():
         self.d_fl = 1
 
     def blitme(self):
-        '''Рисуем корабль в текущей позиции'''
+        '''Выбираем нужную анимацию для корабля и рисуем в нужной позиции'''
         if self.frame > 2:
             self.frame = 2
         if self.frame_up > 4:
