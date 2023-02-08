@@ -33,9 +33,10 @@ class AlienInvansion():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-            elif event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT):
-                self.ship.fl_move_right = False
-                self.ship.fl_move_left = False
+            elif event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or
+                                                 event.key == pygame.K_UP or event.key == pygame.K_DOWN):
+                self.ship.fl_move_right, self.ship.fl_move_left = False, False
+                self.ship.fl_move_up, self.ship.fl_move_down = False, False
 
 
         key = pygame.key.get_pressed()
@@ -54,8 +55,11 @@ class AlienInvansion():
             self.ship.d_fl = 0
         if (key[pygame.K_UP] or key[pygame.K_w]) and self.ship.rect.y > self.ship.screen_rect.y:
             self.ship.rect.y -= 3
+            self.ship.frame_up += 0.1
+            self.ship.fl_move_up = True
         if (key[pygame.K_DOWN] or key[pygame.K_s]) and self.ship.rect.bottom < self.ship.screen_rect.bottom:
             self.ship.rect.y += 3
+            self.ship.fl_move_down = True
 
     def _update_screen(self):
         # устaнавливаем цвет фона
