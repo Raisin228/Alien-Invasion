@@ -21,6 +21,9 @@ class Ship():
         self.animation_set_up = [pygame.image.load(f'images/drednought/up/{i}.png') for i in range(0, 4)]
         self.frame, self.frame_up = 0, 0
         self.d_fl = 1
+        # индикатор нажатой клавиши пробел для стрельбы
+        self.shoot = False
+        self.timer_for_bullets = 0
 
     def blitme(self):
         '''Выбираем нужную анимацию для корабля и рисуем в нужной позиции'''

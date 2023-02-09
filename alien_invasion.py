@@ -3,6 +3,7 @@ import pygame
 from settings import Settings
 from my_ship import Ship
 from bullet import Bullet
+import time
 
 FPS = 60
 clock = pygame.time.Clock()
@@ -17,8 +18,9 @@ class AlienInvansion():
         self.settings = Settings()
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
         pygame.display.set_caption('Alien Invansion')
-        pygame.display.set_icon(pygame.image.load('images/icon.png'))
+        pygame.display.set_icon(pygame.image.load('images/galaxy.png'))
         self.ship = Ship(self)
+        self.bull = Bullet(self)
         self.bullets = pygame.sprite.Group()
 
     def run_game(self):
@@ -26,8 +28,8 @@ class AlienInvansion():
         while True:
             # отслеживание событий клавиатуры и мыши
             self._check_events()
-            # отрисовка группы пуль
-            self.bullets.update()
+            # отрисовка группы пуль и удаление вылетевших за экран
+            self._update_bullets()
             # метод для обновления экрана
             self._update_screen()
             clock.tick(FPS)
@@ -37,19 +39,21 @@ class AlienInvansion():
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
                 sys.exit()
-            elif event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or
-                                                 event.key == pygame.K_UP or event.key == pygame.K_DOWN):
-                self.ship.fl_move_right, self.ship.fl_move_left = False, False
-                self.ship.fl_move_up, self.ship.fl_move_down = False, False
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                self._create_bullet()
+            elif event.type == pygame.KEYUP:
+                if (event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or
+                        event.key == pygame.K_UP or event.key == pygame.K_DOWN):
+                    self.ship.fl_move_right, self.ship.fl_move_left = False, False
+                    self.ship.fl_move_up, self.ship.fl_move_down = False, False
+                if event.key == pygame.K_SPACE:
+                    self.ship.shoot = False
+
+        # проверяем стреляет ли корабль в данный момент
+        key = pygame.key.get_pressed()
+        if key[pygame.K_SPACE]:
+            self.ship.shoot = True
+        self._create_bullet()
 
         self._ship_move()
-
-    def _create_bullet(self):
-        '''Вспомогательный метод для создания пуль и включения её в группу'''
-        new_bullet = Bullet(self)
-        self.bullets.add(new_bullet)
 
     def _ship_move(self):
         '''Обработка движения корабля влево|вправо|верх|низ'''
@@ -71,6 +75,20 @@ class AlienInvansion():
         if key[pygame.K_DOWN] and self.ship.rect.bottom < self.ship.screen_rect.bottom:
             self.ship.rect.y += self.settings.ship_speed
             self.ship.fl_move_down = True
+
+    def _create_bullet(self):
+        '''Вспомогательный метод для создания пуль и включения её в группу'''
+        if self.ship.shoot and (pygame.time.get_ticks() - self.ship.timer_for_bullets) > 500:
+            new_bullet = Bullet(self)
+            self.ship.timer_for_bullets = pygame.time.get_ticks()
+            self.bullets.add(new_bullet)
+
+    def _update_bullets(self):
+        '''Обновляет позиции снарядов и уничтожает старые снаряды'''
+        self.bullets.update()
+        for bullet in self.bullets:
+            if bullet.rect.bottom <= 0:
+                bullet.kill()
 
     def _update_screen(self):
         # устaнавливаем цвет фона
