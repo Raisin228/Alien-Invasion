@@ -16,3 +16,7 @@ class Settings():
         self.bullet_width = 3
         self.bullet_height = 15
         self.bullet_color = (30, 144, 255)
+        # параметры пришельцов
+        self.zergling_width = 66
+        self.zergling_height = 62
+

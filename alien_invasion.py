@@ -3,6 +3,7 @@ import pygame
 from settings import Settings
 from my_ship import Ship
 from bullet import Bullet
+from alien import Alien
 
 FPS = 60
 clock = pygame.time.Clock()
@@ -21,6 +22,8 @@ class AlienInvansion:
         self.ship = Ship(self)
         self.bull = Bullet(self)
         self.bullets = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
+        self._create_fleet()
 
     def run_game(self):
         """Запуск основного цикла игры."""
@@ -89,12 +92,26 @@ class AlienInvansion:
             if bullet.rect.bottom <= 0:
                 bullet.kill()
 
+    def _create_fleet(self):
+        """Создание флота вторжения"""
+        available_space_x = self.settings.screen_width - self.settings.zergling_width
+        numbers_aliens_x = available_space_x // (2 * self.settings.zergling_width)
+        for i in range(numbers_aliens_x):
+            new_alien = Alien(self)
+            new_alien.position_x = 0.5 * self.settings.zergling_width + 2 * self.settings.zergling_width * i
+            new_alien.rect.x = new_alien.position_x
+            self.aliens.add(new_alien)
+
     def _update_screen(self):
         # устaнавливаем цвет фона
         self.screen.blit(self.settings.bg_color, (0, 0))
+        # отображаем корабль
         self.ship.blitme()
+        # прорисовываем пули
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
+        # изображаем флот вторжения
+        self.aliens.draw(self.screen)
         # отображение последнего прорисованного экрана
         pygame.display.flip()
 
