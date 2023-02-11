@@ -3,17 +3,16 @@ import pygame
 from settings import Settings
 from my_ship import Ship
 from bullet import Bullet
-import time
 
 FPS = 60
 clock = pygame.time.Clock()
 
 
-class AlienInvansion():
-    '''Класс для управления ресурсами и поведением игры.'''
+class AlienInvansion:
+    """Класс для управления ресурсами и поведением игры."""
 
     def __init__(self):
-        '''Инициализируем игру и создаём игровые ресурсы'''
+        """Инициализируем игру и создаём игровые ресурсы"""
         pygame.init()
         self.settings = Settings()
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
@@ -24,7 +23,7 @@ class AlienInvansion():
         self.bullets = pygame.sprite.Group()
 
     def run_game(self):
-        '''Запуск основного цикла игры.'''
+        """Запуск основного цикла игры."""
         while True:
             # отслеживание событий клавиатуры и мыши
             self._check_events()
@@ -35,7 +34,7 @@ class AlienInvansion():
             clock.tick(FPS)
 
     def _check_events(self):
-        '''Метод для обработки нажатия клавиш и событий мыши'''
+        """Метод для обработки нажатия клавиш и событий мыши"""
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
                 sys.exit()
@@ -56,7 +55,7 @@ class AlienInvansion():
         self._ship_move()
 
     def _ship_move(self):
-        '''Обработка движения корабля влево|вправо|верх|низ'''
+        """Обработка движения корабля влево|вправо|верх|низ"""
         key = pygame.key.get_pressed()
         if key[pygame.K_RIGHT] and self.ship.rect.right <= self.ship.screen_rect.right:
             self.ship.rect.x += self.settings.ship_speed
