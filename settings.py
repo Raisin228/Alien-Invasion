@@ -13,9 +13,6 @@ class Settings():
         self.ship_speed = 3
         # настройки для создания пуль
         self.bullet_speed = 3.1
-        self.bullet_width = 3
-        self.bullet_height = 15
-        self.bullet_color = (30, 144, 255)
         # параметры пришельцов
         self.zergling_width = 66
         self.zergling_height = 62

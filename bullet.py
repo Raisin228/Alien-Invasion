@@ -10,7 +10,6 @@ class Bullet(Sprite):
         super().__init__()
         self.screen = ai_game.screen
         self.settings = ai_game.settings
-        self.color = self.settings.bullet_color
 
         # создание снаряда в позиции (0, 0) и назначение правильной позиции.
         self.image = pygame.image.load('images/drednought/fire/shoot.png')

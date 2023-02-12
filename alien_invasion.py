@@ -92,15 +92,29 @@ class AlienInvansion:
             if bullet.rect.bottom <= 0:
                 bullet.kill()
 
+    def _create_alien(self, number_alien, row):
+        """Метод для создания одного пришельца в конкретной позиции"""
+        self.new_alien = Alien(self)
+        new_alien_width, new_alien_height = self.new_alien.rect.size
+        self.new_alien.position_x = 0.5 * new_alien_width + 2 * new_alien_width * number_alien
+        self.new_alien.rect.x = self.new_alien.position_x
+        self.new_alien.rect.y = new_alien_height + row * (new_alien_height * 1.5)
+        self.aliens.add(self.new_alien)
+
     def _create_fleet(self):
         """Создание флота вторжения"""
-        available_space_x = self.settings.screen_width - self.settings.zergling_width
-        numbers_aliens_x = available_space_x // (2 * self.settings.zergling_width)
-        for i in range(numbers_aliens_x):
-            new_alien = Alien(self)
-            new_alien.position_x = 0.5 * self.settings.zergling_width + 2 * self.settings.zergling_width * i
-            new_alien.rect.x = new_alien.position_x
-            self.aliens.add(new_alien)
+        self.new_alien = Alien(self)
+        # кол-во пришельцев в одном ряду
+        available_space_x = self.settings.screen_width - self.new_alien.rect.width
+        numbers_aliens_x = available_space_x // (2 * self.new_alien.rect.width)
+        # кол-во рядов флота на экране
+        available_space_y = self.settings.screen_height - 3 * self.new_alien.rect.height - self.ship.rect.height
+        number_rows = available_space_y // (self.new_alien.rect.height * 1.5)
+
+        # создание флота
+        for i in range(int(number_rows)):
+            for j in range(numbers_aliens_x):
+                alien = self._create_alien(j, i)
 
     def _update_screen(self):
         # устaнавливаем цвет фона
