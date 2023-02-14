@@ -17,4 +17,6 @@ class Settings():
         self.alien_speed = 0.5
         self.zergling_width = 66
         self.zergling_height = 62
+        # список спрайтов взрывов
+        self.boom_list = [pygame.image.load(f'images/boom/{i}.png') for i in range(8)]
 

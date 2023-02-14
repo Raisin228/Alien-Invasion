@@ -4,6 +4,7 @@ from settings import Settings
 from my_ship import Ship
 from bullet import Bullet
 from alien import Alien
+from animation_boom import Explosion
 
 FPS = 60
 clock = pygame.time.Clock()
@@ -23,6 +24,7 @@ class AlienInvansion:
         self.bull = Bullet(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
+        self.booms = pygame.sprite.Group()
         self._create_fleet()
 
     def run_game(self):
@@ -101,6 +103,11 @@ class AlienInvansion:
         # проверка попаданий в пришельцев
         # при обнаружении попадания удалить снаряд и пришельца
         collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+
+        for enamy in collisions:
+            self.boom = Explosion(enamy.rect.center, self)
+            self.booms.add(self.boom)
+
         # создание флота если все умерли
         if len(self.aliens) <= 0:
             self.bullets.empty()
@@ -144,6 +151,8 @@ class AlienInvansion:
             bullet.draw_bullet()
         # изображаем флот вторжения
         self.aliens.draw(self.screen)
+
+        self.booms.update()
         # отображение последнего прорисованного экрана
         pygame.display.flip()
 
