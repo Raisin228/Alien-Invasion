@@ -14,6 +14,7 @@ class Settings():
         # настройки для создания пуль
         self.bullet_speed = 3.1
         # параметры пришельцов
+        self.alien_speed = 0.5
         self.zergling_width = 66
         self.zergling_height = 62
 

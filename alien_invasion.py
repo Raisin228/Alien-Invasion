@@ -32,6 +32,8 @@ class AlienInvansion:
             self._check_events()
             # отрисовка группы пуль и удаление вылетевших за экран
             self._update_bullets()
+            # обновление позиций пришельцев
+            self._update_aliens()
             # метод для обновления экрана
             self._update_screen()
             clock.tick(FPS)
@@ -92,13 +94,29 @@ class AlienInvansion:
             if bullet.rect.bottom <= 0:
                 bullet.kill()
 
+        self._check_bullet_alien_collisions()
+
+    def _check_bullet_alien_collisions(self):
+        """Проверка колизий пуль и пришельцев"""
+        # проверка попаданий в пришельцев
+        # при обнаружении попадания удалить снаряд и пришельца
+        collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
+        # создание флота если все умерли
+        if len(self.aliens) <= 0:
+            self.bullets.empty()
+            self._create_fleet()
+
+    def _update_aliens(self):
+        """Обновляет позиции всех пришельцев"""
+        self.aliens.update()
+
     def _create_alien(self, number_alien, row):
         """Метод для создания одного пришельца в конкретной позиции"""
         self.new_alien = Alien(self)
         new_alien_width, new_alien_height = self.new_alien.rect.size
         self.new_alien.position_x = 0.5 * new_alien_width + 2 * new_alien_width * number_alien
         self.new_alien.rect.x = self.new_alien.position_x
-        self.new_alien.rect.y = new_alien_height + row * (new_alien_height * 1.5)
+        self.new_alien.rect.y = new_alien_height + row * (new_alien_height * 2)
         self.aliens.add(self.new_alien)
 
     def _create_fleet(self):
@@ -109,7 +127,7 @@ class AlienInvansion:
         numbers_aliens_x = available_space_x // (2 * self.new_alien.rect.width)
         # кол-во рядов флота на экране
         available_space_y = self.settings.screen_height - 3 * self.new_alien.rect.height - self.ship.rect.height
-        number_rows = available_space_y // (self.new_alien.rect.height * 1.5)
+        number_rows = available_space_y // (self.new_alien.rect.height * 2)
 
         # создание флота
         for i in range(int(number_rows)):
