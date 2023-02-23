@@ -10,7 +10,9 @@ class Settings():
         self.screen_width = 1200
         self.screen_height = 800
         self.bg_color = pygame.image.load('images/фон1.png')
+        # настройки корабля
         self.ship_speed = 3
+        self.ship_limit = 3
         # настройки для создания пуль
         self.bullet_speed = 3.1
         # параметры пришельцов

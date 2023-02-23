@@ -7,12 +7,12 @@ class Ship():
     def __init__(self, ai_game):
         '''Инициализирует корабль и задает его начальную позицию'''
         self.screen = ai_game.screen
-        self.screen_rect = ai_game.screen.get_rect()
+        self.screen_rect = ai_game.screen_rect
         # Загружает изображение корабля и получает прямоугольник
         self.image = pygame.image.load('images/drednought/right/0.png')
         self.rect = self.image.get_rect()
         # Каждый новый корабль появляется у нижнего края экрана
-        self.rect.midbottom = self.screen_rect.midbottom
+        self.center_ship()
 
         # флаги для анимации движения корабля
         self.fl_move_right, self.fl_move_left, self.fl_move_up, self.fl_move_down = False, False, False, False
@@ -24,6 +24,10 @@ class Ship():
         # индикатор нажатой клавиши пробел для стрельбы
         self.shoot = False
         self.timer_for_bullets = 0
+
+    def center_ship(self):
+        """размещает коралбль по центру внизу экрана"""
+        self.rect.midbottom = self.screen_rect.midbottom
 
     def blitme(self):
         '''Выбираем нужную анимацию для корабля и рисуем в нужной позиции'''

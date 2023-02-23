@@ -1,10 +1,12 @@
 import sys
 import pygame
+import time
 from settings import Settings
 from my_ship import Ship
 from bullet import Bullet
 from alien import Alien
 from animation_boom import Explosion
+from game_stats import GameStats
 
 FPS = 60
 clock = pygame.time.Clock()
@@ -18,8 +20,11 @@ class AlienInvansion:
         pygame.init()
         self.settings = Settings()
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
+        self.screen_rect = self.screen.get_rect()
         pygame.display.set_caption('Alien Invansion')
         pygame.display.set_icon(pygame.image.load('images/galaxy.png'))
+        # экземпляр для хранения игровой статистики
+        self.stats = GameStats(self)
         self.ship = Ship(self)
         self.bull = Bullet(self)
         self.bullets = pygame.sprite.Group()
@@ -32,10 +37,13 @@ class AlienInvansion:
         while True:
             # отслеживание событий клавиатуры и мыши
             self._check_events()
-            # отрисовка группы пуль и удаление вылетевших за экран
-            self._update_bullets()
-            # обновление позиций пришельцев
-            self._update_aliens()
+
+            if self.stats.game_active:
+                # отрисовка группы пуль и удаление вылетевших за экран
+                self._update_bullets()
+                # обновление позиций пришельцев
+                self._update_aliens()
+
             # метод для обновления экрана
             self._update_screen()
             clock.tick(FPS)
@@ -82,6 +90,25 @@ class AlienInvansion:
             self.ship.rect.y += self.settings.ship_speed
             self.ship.fl_move_down = True
 
+    def _ship_hit(self):
+        """Уничтожение корабля при столкновении"""
+        # конец игры если кончились жизни
+        if self.stats.ship_left > 0:
+            # у пользователя исчезла 1 жизнь
+            self.stats.ship_left -= 1
+            # убираем пришельцев и пули
+            self.aliens.empty()
+            self.bullets.empty()
+
+            # создание нового флота и размещение корабля в центре
+            self._create_fleet()
+            self.ship.center_ship()
+
+            # пауза
+            time.sleep(0.25)
+        else:
+            self.stats.game_active = False
+
     def _create_bullet(self):
         '''Вспомогательный метод для создания пуль и включения её в группу'''
         if self.ship.shoot and (pygame.time.get_ticks() - self.ship.timer_for_bullets) > 500:
@@ -117,6 +144,20 @@ class AlienInvansion:
         """Обновляет позиции всех пришельцев"""
         self.aliens.update()
 
+        # проверка коллизий пришелец-корабль
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+            self._ship_hit()
+
+        # добрались пришельцы до низа
+        self._check_aliens_bottom()
+
+    def _check_aliens_bottom(self):
+        """Если пришельцы добрались до низа экрана то чистим пули и флот и забираем 1 жизнь у игрока"""
+        for alien in self.aliens.sprites():
+            if alien.rect.bottom >= self.screen_rect[3]:
+                self._ship_hit()
+                break
+
     def _create_alien(self, number_alien, row):
         """Метод для создания одного пришельца в конкретной позиции"""
         self.new_alien = Alien(self)
@@ -144,13 +185,16 @@ class AlienInvansion:
     def _update_screen(self):
         # устaнавливаем цвет фона
         self.screen.blit(self.settings.bg_color, (0, 0))
-        # отображаем корабль
-        self.ship.blitme()
-        # прорисовываем пули
-        for bullet in self.bullets.sprites():
-            bullet.draw_bullet()
-        # изображаем флот вторжения
-        self.aliens.draw(self.screen)
+
+        # отображаем эти элементы только если игра активна
+        if self.stats.game_active:
+            # отображаем корабль
+            self.ship.blitme()
+            # прорисовываем пули
+            for bullet in self.bullets.sprites():
+                bullet.draw_bullet()
+            # изображаем флот вторжения
+            self.aliens.draw(self.screen)
 
         self.booms.update()
         # отображение последнего прорисованного экрана
