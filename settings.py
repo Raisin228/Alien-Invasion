@@ -22,6 +22,8 @@ class Settings():
         self.zergling_height = 62
         # список спрайтов взрывов
         self.boom_list = [pygame.image.load(f'images/boom/{i}.png') for i in range(8)]
+        # первое включение/pause
+        self.first_start = True
         # цвета
         self.green = (0, 128, 0)
         self.white = (255, 255, 255)

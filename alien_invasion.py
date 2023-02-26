@@ -8,6 +8,7 @@ from alien import Alien
 from animation_boom import Explosion
 from game_stats import GameStats
 from buttons import Button
+from blure import blure_bg
 
 FPS = 60
 clock = pygame.time.Clock()
@@ -32,6 +33,13 @@ class AlienInvansion:
         self.aliens = pygame.sprite.Group()
         self.booms = pygame.sprite.Group()
         self._create_fleet()
+        # создание 2-х кнопок
+        self.button_play = Button(self, 'Play', 'images/buttons/button_play.png',
+                                  self.screen_rect.center[0] - 100, self.screen_rect.center[1])
+        self.button_quit = Button(self, 'Quit', 'images/buttons/button_quit.png',
+                                  self.screen_rect.center[0] - 100, self.screen_rect.center[1] + 100)
+        # изначально устанавливаем фон загрузки игры
+        self.screen.blit(self.settings.start_bg, (0, 0))
 
     def run_game(self):
         """Запуск основного цикла игры."""
@@ -41,9 +49,11 @@ class AlienInvansion:
 
             if self.stats.game_active:
                 # отрисовка группы пуль и удаление вылетевших за экран
+                self.settings.first_start = False
                 self._update_bullets()
                 # обновление позиций пришельцев
                 self._update_aliens()
+
 
             # метод для обновления экрана
             self._update_screen()
@@ -54,6 +64,16 @@ class AlienInvansion:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
                 sys.exit()
+            elif event.type == pygame.KEYUP and event.key == pygame.K_p:
+                # если кнопка p нажата в главном меню -> начинаем игру
+                if not self.stats.game_active:
+                    self.stats.game_active = True
+                else: # размываем фон
+                    self.stats.game_active = False
+                    sub = self.screen.subsurface(self.screen_rect)
+                    pygame.image.save(sub, 'images/stop_blure_bg/screenshot.jpg')
+                    blure_bg()
+
             elif event.type == pygame.KEYUP:
                 if (event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or
                         event.key == pygame.K_UP or event.key == pygame.K_DOWN):
@@ -61,7 +81,7 @@ class AlienInvansion:
                     self.ship.fl_move_up, self.ship.fl_move_down = False, False
                 if event.key == pygame.K_SPACE:
                     self.ship.shoot = False
-            else:
+            elif not self.stats.game_active:
                 # проверяем находится ли мышка на кнопке play/quit
                 mouse_pos = pygame.mouse.get_pos()
                 self._check_play_quit_button(mouse_pos, event)
@@ -77,19 +97,19 @@ class AlienInvansion:
     def _check_play_quit_button(self, mouse_pos, event):
         """Проверяем нахождение мыши над кнопкой Play/Quit"""
         # нажата play
-        if self.screen_rect.center[0] - 100 <= mouse_pos[0] <= self.screen_rect.center[0] + 100 and \
-                self.screen_rect.center[1] <= mouse_pos[1] <= self.screen_rect.center[1] + 50:
+        if self.button_play.button_rect.collidepoint(mouse_pos):
             self.button_play = Button(self, 'Play', 'images/buttons/button_play.png',
                                       self.screen_rect.center[0] - 100, self.screen_rect.center[1], self.settings.dark)
             if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]:
                 self.stats.game_active = True
+                self.stats.reset_stats()
+
         # нажата quit
-        elif self.screen_rect.center[0] - 100 <= mouse_pos[0] <= self.screen_rect.center[0] + 100 and \
-                self.screen_rect.center[1] + 100 <= mouse_pos[1] <= self.screen_rect.center[1] + 150:
+        elif self.button_quit.button_rect.collidepoint(mouse_pos):
             self.button_quit = Button(self, 'Quit', 'images/buttons/button_quit.png',
                                       self.screen_rect.center[0] - 100, self.screen_rect.center[1] + 100,
                                       self.settings.dark)
-            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pos()[0]:
+            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]:
                 sys.exit()
         # не нажаты play/quit
         else:
@@ -97,6 +117,11 @@ class AlienInvansion:
                                       self.screen_rect.center[0] - 100, self.screen_rect.center[1])
             self.button_quit = Button(self, 'Quit', 'images/buttons/button_quit.png',
                                       self.screen_rect.center[0] - 100, self.screen_rect.center[1] + 100)
+        # прячем курсор если началась игра
+        if self.stats.game_active:
+            pygame.mouse.set_visible(False)
+        else:
+            pygame.mouse.set_visible(True)
 
     def _ship_move(self):
         """Обработка движения корабля влево|вправо|верх|низ"""
@@ -135,8 +160,12 @@ class AlienInvansion:
 
             # пауза
             time.sleep(0.25)
-        else:
+        if self.stats.ship_left <= 0:
+            # делаем игру не активной и открываем главное меню
             self.stats.game_active = False
+            self.settings.first_start = True
+            self.aliens.empty()
+            self.bullets.empty()
 
     def _create_bullet(self):
         '''Вспомогательный метод для создания пуль и включения её в группу'''
@@ -223,8 +252,16 @@ class AlienInvansion:
                 bullet.draw_bullet()
             # изображаем флот вторжения
             self.aliens.draw(self.screen)
+        # отображаем эти элементы если игра стоит на паузе
+        elif not self.settings.first_start:
+            # устaнавливаем цвет размытого фона
+            self.blure_fon_pause = pygame.image.load('images/stop_blure_bg/bg.jpg')
+            self.screen.blit(self.blure_fon_pause, (0, 0))
+            # 2 кнопки
+            self.button_play.draw_button()
+            self.button_quit.draw_button()
+        # главное меню
         else:
-            # устaнавливаем цвет фона
             self.screen.blit(self.settings.start_bg, (0, 0))
             # 2 кнопки
             self.button_play.draw_button()
