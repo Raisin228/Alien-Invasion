@@ -7,6 +7,7 @@ from bullet import Bullet
 from alien import Alien
 from animation_boom import Explosion
 from game_stats import GameStats
+from buttons import Button
 
 FPS = 60
 clock = pygame.time.Clock()
@@ -60,6 +61,10 @@ class AlienInvansion:
                     self.ship.fl_move_up, self.ship.fl_move_down = False, False
                 if event.key == pygame.K_SPACE:
                     self.ship.shoot = False
+            else:
+                # проверяем находится ли мышка на кнопке play/quit
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_quit_button(mouse_pos, event)
 
         # проверяем стреляет ли корабль в данный момент
         key = pygame.key.get_pressed()
@@ -68,6 +73,30 @@ class AlienInvansion:
         self._create_bullet()
 
         self._ship_move()
+
+    def _check_play_quit_button(self, mouse_pos, event):
+        """Проверяем нахождение мыши над кнопкой Play/Quit"""
+        # нажата play
+        if self.screen_rect.center[0] - 100 <= mouse_pos[0] <= self.screen_rect.center[0] + 100 and \
+                self.screen_rect.center[1] <= mouse_pos[1] <= self.screen_rect.center[1] + 50:
+            self.button_play = Button(self, 'Play', 'images/buttons/button_play.png',
+                                      self.screen_rect.center[0] - 100, self.screen_rect.center[1], self.settings.dark)
+            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pressed()[0]:
+                self.stats.game_active = True
+        # нажата quit
+        elif self.screen_rect.center[0] - 100 <= mouse_pos[0] <= self.screen_rect.center[0] + 100 and \
+                self.screen_rect.center[1] + 100 <= mouse_pos[1] <= self.screen_rect.center[1] + 150:
+            self.button_quit = Button(self, 'Quit', 'images/buttons/button_quit.png',
+                                      self.screen_rect.center[0] - 100, self.screen_rect.center[1] + 100,
+                                      self.settings.dark)
+            if event.type == pygame.MOUSEBUTTONDOWN and pygame.mouse.get_pos()[0]:
+                sys.exit()
+        # не нажаты play/quit
+        else:
+            self.button_play = Button(self, 'Play', 'images/buttons/button_play.png',
+                                      self.screen_rect.center[0] - 100, self.screen_rect.center[1])
+            self.button_quit = Button(self, 'Quit', 'images/buttons/button_quit.png',
+                                      self.screen_rect.center[0] - 100, self.screen_rect.center[1] + 100)
 
     def _ship_move(self):
         """Обработка движения корабля влево|вправо|верх|низ"""
@@ -183,11 +212,10 @@ class AlienInvansion:
                 alien = self._create_alien(j, i)
 
     def _update_screen(self):
-        # устaнавливаем цвет фона
-        self.screen.blit(self.settings.bg_color, (0, 0))
-
         # отображаем эти элементы только если игра активна
         if self.stats.game_active:
+            # устaнавливаем цвет фона
+            self.screen.blit(self.settings.bg_color, (0, 0))
             # отображаем корабль
             self.ship.blitme()
             # прорисовываем пули
@@ -195,6 +223,12 @@ class AlienInvansion:
                 bullet.draw_bullet()
             # изображаем флот вторжения
             self.aliens.draw(self.screen)
+        else:
+            # устaнавливаем цвет фона
+            self.screen.blit(self.settings.start_bg, (0, 0))
+            # 2 кнопки
+            self.button_play.draw_button()
+            self.button_quit.draw_button()
 
         self.booms.update()
         # отображение последнего прорисованного экрана
